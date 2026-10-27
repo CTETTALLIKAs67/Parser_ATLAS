@@ -28,6 +28,8 @@ class Parser_ATLAS:
         self.where_to = where_to
         self.departure_time = []
         self.arrival_time = []
+        self.ratio = []
+        self.res = {}
 
     def acceptCoockie(self):
         try:
@@ -42,15 +44,18 @@ class Parser_ATLAS:
 
         
     def collecting_info(self):
-        date1 = pd.date_range(start='2026-10-28', end='2027-01-01', freq='D')
+        date1 = pd.date_range(start='2026-10-28', end='2026-11-01', freq='D')
         date_list1 = date1.to_pydatetime().tolist()
         string_dates1 = [i.strftime("%Y-%m-%d") for i in date_list1]
         for k in string_dates1:
             url = f'https://atlasbus.by/Маршруты/Минск/{self.where_to}?date={k}&passengers=1'
             self.driver.get(url)
+            self.departure_time.clear()
+            self.arrival_time.clear()
             self.acceptCoockie()
             for i in range (1, 50):
                 try:
+                    #УБЫТИЕ
                     text_1 = WebDriverWait(self.driver, 0.5).until(lambda d: d.find_element(By.XPATH, f"html/body/div/div/main/div/div[2]/div[{i}]/div/div[2]/div/div[1]/div/div[1]/div/div[1]/div[1]").text)
                     if text_1:
                         self.departure_time.append(text_1)
@@ -62,6 +67,7 @@ class Parser_ATLAS:
                     except TimeoutException:
                         continue
                 try:
+                    #ПРИБЫТИЕ
                     text_2 = WebDriverWait(self.driver, 0.5).until(lambda d: d.find_element(By.XPATH, f"/html/body/div/div/main/div/div[2]/div[{i}]/div/div[2]/div/div[1]/div/div[2]/div/div[1]/div").text)
                     if text_2:
                         self.arrival_time.append(text_2)
@@ -72,11 +78,17 @@ class Parser_ATLAS:
                             self.arrival_time.append(text_2)
                     except TimeoutException:
                         continue
-            print(self.departure_time)
-            print(len(self.departure_time))
-            print(self.arrival_time)
-            print(len(self.arrival_time))
+            self.ratio.clear()
+            for i in range(0, len(self.departure_time)):
+                self.ratio.append(f'{self.departure_time[i]}-{self.arrival_time[i]}')
 
+            self.res[k] = self.ratio
+
+            print(f'THIS IS ratio {k}')
+            print(self.ratio)
+            print(self.res)
+        datd = pd.DataFrame(self.res)
+        datd.to_csv(f'res{self.from_where}-{self.where_to}.csv', index=0)
 
     def __del__(self):
         print ("zakoncheno")
