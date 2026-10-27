@@ -73,7 +73,7 @@ class Parser_ATLAS:
         date_list1 = date1.to_pydatetime().tolist()
         string_dates1 = [i.strftime("%Y-%m-%d") for i in date_list1]
         for k in string_dates1:
-            url = f'https://atlasbus.by/Маршруты/Минск/{self.where_to}?date={k}&passengers=1'
+            url = f'https://atlasbus.by/Маршруты/{self.from_where}/{self.where_to}?date={k}&passengers=1'
             self.driver.get(url)
             self.departure_time.clear()
             self.arrival_time.clear()
