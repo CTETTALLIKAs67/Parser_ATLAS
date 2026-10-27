@@ -8,7 +8,7 @@ def main():
             'Минск',
             i
         )
-        parser.openBus()
+        parser.collecting_info()
 
 
 if __name__ == "__main__":
